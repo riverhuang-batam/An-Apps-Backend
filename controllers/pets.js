@@ -4,7 +4,7 @@ const Pet = require("../models/pet");
 module.exports = {
   get_pet_lists: (req, res) => {
     Pet.find()
-      .select("_id petName price petImages description quantity")
+      .select("_id petName price petImages description quantity postedById")
       .then((docs) => {
         const response = {
           count: docs.length,
@@ -15,6 +15,7 @@ module.exports = {
             petImages: doc.petImages,
             description: doc.description,
             quantity: doc.quantity,
+            postedById: doc.postedById,
             request: {
               type: "GET",
               request: `${process.env.REQUEST_URI}:${process.env.PORT}/pets/${doc._id}`,
@@ -64,7 +65,7 @@ module.exports = {
       petImages: imageFiles,
       description: req.body.description,
       quantity: req.body.quantity,
-      posted_by: req.body.posted_by,
+      postedById: req.body.postedById,
       create_at: req.body.create_at,
     });
     pet
@@ -98,4 +99,36 @@ module.exports = {
         })
       );
   },
+  delete_all_post: (req, res) => {
+    Pet.remove()
+      .then((result) => {
+        res.status(200).json({
+          message: "pet deleted",
+          result: result,
+        });
+      })
+      .catch((err) =>
+        res.status(500).json({
+          error: err,
+          message: "delete error",
+        })
+      );
+  },
+  update_posted_pet: (req, res) => {
+    
+      petId = req.params.petId;
+      // console.log(req.body)
+        Pet.findById(petId)
+        .then((result) => {
+          Pet.findByIdAndUpdate(
+            petId,
+            {
+              petName: req.body.petName 
+            },
+          )
+            .then((result) => res.json(result))
+            .catch((err) => res.json(err));
+        })
+        .catch((err) => res.json(err));
+    }
 };

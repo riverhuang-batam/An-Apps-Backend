@@ -5,7 +5,6 @@ router.get('/', userControllers.getAllUser)
 router.get('/:id')
 router.post('/signup', userControllers.signup)
 router.post('/login', userControllers.login)
-router.patch('/:userId')
 router.delete('/:userId', userControllers.deleteUser)
-
+router.put('/:userId', userControllers.editUser)
 module.exports = router;

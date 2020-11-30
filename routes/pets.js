@@ -15,6 +15,8 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage})
 router.get('/', petsController.get_pet_lists)
 router.get('/:petId', petsController. get_pet_detail)
-router.post('/', checkAuth, upload.array("petImages", 10), petsController.post_pet)
+router.post('/', upload.array("petImages", 10), petsController.post_pet)
+router.delete('/',petsController.delete_all_post)
 router.delete('/:petId',petsController.delete_posted_pet)
+router.put('/:petId',petsController.update_posted_pet)
 module.exports = router;

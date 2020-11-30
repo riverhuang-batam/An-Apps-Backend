@@ -35,7 +35,6 @@ module.exports = {
                         })
                         user.save()
                         .then(result => {
-                            console.log(result)
                             res.status(201).json({
                                 message: "User Created"
                             })
@@ -52,6 +51,7 @@ module.exports = {
     },
     login: (req, res) => {
         User.find({email: req.body.email})
+        .exec()
         .then(user => {
             if(user.length < 1){
                 return res.status(401).json({
@@ -75,6 +75,9 @@ module.exports = {
                         token: token
                     })
                 }
+                res.status(401).json({
+                    message: 'Auth Failed'
+                })
             })
         })
         .catch(err => res.status(500).json(err))
@@ -87,5 +90,24 @@ module.exports = {
             })
         })
         .catch(err => res.status(500).json(err))
-    }
+    },
+    editUser: (req, res) => {
+    
+    
+      userId = req.params.userId;
+      console.log(req.body)
+        User.findById(userId)
+        .then((result) => {
+          User.findByIdAndUpdate(
+            userId,
+            {
+              username: req.body.username 
+            },
+          )
+            .then((result) => res.json(result))
+            .catch((err) => res.json(err));
+        })
+        .catch((err) => res.json(err));
+    
+  } 
 }
