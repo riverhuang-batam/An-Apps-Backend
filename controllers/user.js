@@ -12,6 +12,23 @@ module.exports = {
         })
         .catch(err => res.status(500).json(err))
     },
+    getUserDetail:(req, res) => {
+        const id = req.params.id
+        console.log(req.params)
+        User.findById(id)
+        .then(result => {
+            if(result){
+                res.status(200).json({
+                    result
+                })
+            } else {
+                res.status(404).json({
+                    message: "User Not Found"
+                })
+            }
+        })
+        .catch(err => res.status(500).json(err))
+    },
     signup: (req, res)  => {
         User.find({email: req.body.email})
         .then(user => {

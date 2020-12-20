@@ -1,23 +1,18 @@
 const mongoose = require("mongoose");
-const Pet = require("../models/pet");
+const Feedback = require("../models/feedback");
 
 module.exports = {
-  get_pet_lists: (req, res) => {
-    Pet.find()
-      .select("_id petName price petImages description quantity postedById")
-      .populate('postedById', 'username email')
-      
+  get_feedback_lists: (req, res) => {
+    Feedback.find()
+      // .select("_id petName price petImages description quantity postedById")
       .then((docs) => {
         const response = {
           count: docs.length,
-          pet: docs.map((doc) => ({
+          feedback: docs.map((doc) => ({
             _id: doc._id,
-            petName: doc.petName,
-            price: doc.price,
-            petImages: doc.petImages,
+            subject: doc.subject,
             description: doc.description,
-            quantity: doc.quantity,
-            postedById: doc.postedById,
+            sendById: doc.sendById,
             request: {
               type: "GET",
               request: `${process.env.REQUEST_URI}:${process.env.PORT}/pets/${doc._id}`,
@@ -49,30 +44,25 @@ module.exports = {
     //     id: id
     // })
   },
-  post_pet: (req, res) => {
+  post_feedback: (req, res) => {
     // const pet = {
     //     petName: req.body.petName,
     //     price: req.body.price
     // }
 
-    const imageFiles = req.files.map((file) => ({
-      originalname: file.originalname,
-      path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
-    }));
-    const pet = new Pet({
+    // const imageFiles = req.files.map((file) => ({
+    //   originalname: file.originalname,
+    //   path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
+    // }));
+    const feedback = new Feedback({
       _id: mongoose.Types.ObjectId(),
-      petName: req.body.petName,
-      price: req.body.price,
-      petImages: imageFiles,
+      subject: req.body.subject,
       description: req.body.description,
-      quantity: req.body.quantity,
-      postedById: req.body.postedById,
+      sendById: req.body.sendById,
       create_at: req.body.create_at,
     });
-    pet
-    
+    feedback
       .save()
-      .then(response => response.populate('postedById', 'username email').execPopulate())
       .then((result) => {
         res.status(200).json({
           message: "Handling Post request to /pets",
@@ -127,7 +117,6 @@ module.exports = {
       // console.log(req.body)
       const {petName, price, description, quantity} = req.body
         Pet.findByIdAndUpdate({ _id: petId}, {petName, price, petImages: imageFiles, description, quantity}, {new: true})
-        .then(response => response.populate('postedById', 'username email').execPopulate())
         .then((result) => {
           res.status(200).json({
             result: result,

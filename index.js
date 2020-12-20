@@ -7,6 +7,10 @@ require('dotenv').config()
 
 const petsRoutes = require('./routes/pets')
 const userRoutes = require('./routes/user')
+const ordersRoutes = require('./routes/orders')
+const feedbackRoutes = require('./routes/feedback')
+const categoryRoutes = require('./routes/category')
+const articleRoutes = require('./routes/article')
 
 mongoose.connect('mongodb://localhost:27017/anapps', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: true}, (err) => {
     if(err){
@@ -15,8 +19,8 @@ mongoose.connect('mongodb://localhost:27017/anapps', {useNewUrlParser: true, use
     console.log('mongodb connected')
 })
 app.use('/uploads', express.static('uploads'))
+app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: false}))
 app.use(morgan('dev'))
 
 app.use((req, res, next) => {
@@ -27,6 +31,10 @@ app.use((req, res, next) => {
 
 app.use('/pets', petsRoutes)
 app.use('/user', userRoutes)
+app.use('/orders', ordersRoutes)
+app.use('/feedback', feedbackRoutes)
+app.use('/category', categoryRoutes)
+app.use('/article', articleRoutes)
 
 app.use((req, res, next) => {
     const error = new Error('Not Found');

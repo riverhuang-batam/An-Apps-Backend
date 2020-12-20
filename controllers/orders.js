@@ -1,134 +1,108 @@
-const mongoose = require("mongoose");
-const Pet = require("../models/pet");
+const mongoose = require('mongoose')
+const Order = require('../models/orders')
+const Pet = require('../models/pet')
 
 module.exports = {
-  get_pet_lists: (req, res) => {
-    Pet.find()
-      .select("_id petName price petImages description quantity postedById")
-      .then((docs) => {
-        const response = {
-          count: docs.length,
-          pet: docs.map((doc) => ({
-            _id: doc._id,
-            petName: doc.petName,
-            price: doc.price,
-            petImages: doc.petImages,
-            description: doc.description,
-            quantity: doc.quantity,
-            postedById: doc.postedById,
-            request: {
-              type: "GET",
-              request: `${process.env.REQUEST_URI}:${process.env.PORT}/pets/${doc._id}`,
-            },
-          })),
-        };
-        res.status(200).json(response);
-      })
-      .catch((err) => res.status.json({ error: err }));
-  },
-  get_pet_detail: (req, res) => {
-    const id = req.params.petId;
-    Pet.findById(id)
-      .then((doc) => {
-        if (doc) {
-          res.status(200).json(doc);
-        } else {
-          res.status(404).json({
-            message: "Not Found petId",
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).json({ error: err });
-      });
-    // res.status(200).json({
-    //     message: 'Handling Get request to /pets/:petId',
-    //     id: id
-    // })
-  },
-  post_pet: (req, res) => {
-    const id = req.params.petId;
-    // const pet = {
-    //     petName: req.body.petName,
-    //     price: req.body.price
-    // }
+    orderGetAll: (req, res) => {
+        Order.find()
+        // .select('product quantity _id')
+        // .populate('product', 'name price')
+        .then(results => {
+            res.status(200).json({
+                count: results.length,
+                orders: results.map(result => {
+                    return {
+                        _id: result._id,
+                        pets: result.pets,
+                        quantity: result.quantity,
+                        request: {
+                            type: 'GET',
+                            url: `http://localhost:5001/orders/${result._id}`
+                        }
+                    }
+                })
+            })
+        })
+        .catch(err => res.json({error: err}))
+    },
 
-    const imageFiles = req.files.map((file) => ({
-      originalname: file.originalname,
-      path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
-    }));
-    const pet = new Pet({
-      _id: mongoose.Types.ObjectId(),
-      petName: req.body.petName,
-      price: req.body.price,
-      petImages: imageFiles,
-      description: req.body.description,
-      quantity: req.body.quantity,
-      postedById: req.body.postedById,
-      create_at: req.body.create_at,
-    });
-    pet
-      .save()
-      .then((result) => {
-        res.status(200).json({
-          message: "Handling Post request to /pets",
-          createdPet: result,
+    orderPost:  (req, res) => {
+      console.log(req.body.pets)
+        Pet.findById(req.body.pets)
+        .then(product => {
+          console.log(product, '=====================')
+            if(!product){
+                return res.status(404).json({
+                    message: "Product not found"
+                })
+            }
+            const order = new Order({
+                _id: mongoose.Types.ObjectId(),
+                quantity: req.body.quantity,
+                pets: req.body.pets
+            });
+            return order.save()
+        })
+        .then(result => {
+            console.log(result);
+            res.status(201).json({
+                message: 'Order Stored',
+                createdOrder: {
+                    _id: result._id,
+                    pets: result.pets,
+                    quantity: result.quantity
+                },
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:5001/orders/'
+                }
+                }) 
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: 'Product not found',
+                error: err
+            })
+        })   
+    },
+    orderGetById: (req, res, next) => {
+        Order.findById(req.params.orderId)
+        .then(order => {
+            if(!order){
+                res.status(404).json({
+                    message: "order not found"
+                })
+            }
+            res.status(200).json({
+                order: order,
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:5001/orders'
+                }
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+    },
+    orderDeleteById: (req, res, next) => {
+        Order.remove({_id: req.params.orderId})
+        .then(result => {
+            res.status(200).json({
+                message: 'Order deleted',
+                request: {
+                    type: "POST",
+                    url: "http://localhost:5001/orders",
+                    body: {productId: 'ID', quantity: 'Number'}
+                }
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
         });
-      })
-      .catch((err) =>
-        res.status(500).json({
-          error: err,
-          message: "post error",
-        })
-      );
-  },
-  delete_posted_pet: (req, res) => {
-    const id = req.params.petId;
-    Pet.remove({ _id: id })
-      .then((result) => {
-        res.status(200).json({
-          message: "pet deleted",
-          result: result,
-        });
-      })
-      .catch((err) =>
-        res.status(500).json({
-          error: err,
-          message: "delete error",
-        })
-      );
-  },
-  delete_all_post: (req, res) => {
-    Pet.remove()
-      .then((result) => {
-        res.status(200).json({
-          message: "pet deleted",
-          result: result,
-        });
-      })
-      .catch((err) =>
-        res.status(500).json({
-          error: err,
-          message: "delete error",
-        })
-      );
-  },
-  update_posted_pet: (req, res) => {
-    
-      petId = req.params.petId;
-      // console.log(req.body)
-        Pet.findById(petId)
-        .then((result) => {
-          Pet.findByIdAndUpdate(
-            petId,
-            {
-              petName: req.body.petName 
-            },
-          )
-            .then((result) => res.json(result))
-            .catch((err) => res.json(err));
-        })
-        .catch((err) => res.json(err));
     }
-};
+}

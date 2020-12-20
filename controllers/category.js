@@ -1,23 +1,16 @@
 const mongoose = require("mongoose");
-const Pet = require("../models/pet");
+const Category = require("../models/category");
 
 module.exports = {
-  get_pet_lists: (req, res) => {
-    Pet.find()
-      .select("_id petName price petImages description quantity postedById")
-      .populate('postedById', 'username email')
-      
+  get_category_lists: (req, res) => {
+    Category.find()
+    //   .select("_id petName price petImages description quantity postedById")
       .then((docs) => {
         const response = {
           count: docs.length,
-          pet: docs.map((doc) => ({
+          category: docs.map((doc) => ({
             _id: doc._id,
-            petName: doc.petName,
-            price: doc.price,
-            petImages: doc.petImages,
-            description: doc.description,
-            quantity: doc.quantity,
-            postedById: doc.postedById,
+            category: doc.category,
             request: {
               type: "GET",
               request: `${process.env.REQUEST_URI}:${process.env.PORT}/pets/${doc._id}`,
@@ -49,33 +42,25 @@ module.exports = {
     //     id: id
     // })
   },
-  post_pet: (req, res) => {
+  post_category: (req, res) => {
     // const pet = {
     //     petName: req.body.petName,
     //     price: req.body.price
     // }
 
-    const imageFiles = req.files.map((file) => ({
-      originalname: file.originalname,
-      path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
-    }));
-    const pet = new Pet({
+    // const imageFiles = req.files.map((file) => ({
+    //   originalname: file.originalname,
+    //   path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
+    // }));
+    const category = new Category({
       _id: mongoose.Types.ObjectId(),
-      petName: req.body.petName,
-      price: req.body.price,
-      petImages: imageFiles,
-      description: req.body.description,
-      quantity: req.body.quantity,
-      postedById: req.body.postedById,
-      create_at: req.body.create_at,
+      category: req.body.category,
     });
-    pet
-    
+    category
       .save()
-      .then(response => response.populate('postedById', 'username email').execPopulate())
       .then((result) => {
         res.status(200).json({
-          message: "Handling Post request to /pets",
+          message: "Handling Post request to /category",
           createdPet: result,
         });
       })
@@ -127,7 +112,6 @@ module.exports = {
       // console.log(req.body)
       const {petName, price, description, quantity} = req.body
         Pet.findByIdAndUpdate({ _id: petId}, {petName, price, petImages: imageFiles, description, quantity}, {new: true})
-        .then(response => response.populate('postedById', 'username email').execPopulate())
         .then((result) => {
           res.status(200).json({
             result: result,

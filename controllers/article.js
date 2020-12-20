@@ -1,26 +1,22 @@
 const mongoose = require("mongoose");
-const Pet = require("../models/pet");
+const Article = require("../models/article");
 
 module.exports = {
-  get_pet_lists: (req, res) => {
-    Pet.find()
-      .select("_id petName price petImages description quantity postedById")
-      .populate('postedById', 'username email')
-      
+  get_article_lists: (req, res) => {
+    Article.find()
+    //   .select("_id petName price petImages description quantity postedById")
       .then((docs) => {
         const response = {
           count: docs.length,
-          pet: docs.map((doc) => ({
+          article: docs.map((doc) => ({
             _id: doc._id,
-            petName: doc.petName,
-            price: doc.price,
-            petImages: doc.petImages,
+            title: doc.title,
+            articleImages: doc.articleImages,
             description: doc.description,
-            quantity: doc.quantity,
             postedById: doc.postedById,
             request: {
               type: "GET",
-              request: `${process.env.REQUEST_URI}:${process.env.PORT}/pets/${doc._id}`,
+              request: `${process.env.REQUEST_URI}:${process.env.PORT}/article/${doc._id}`,
             },
           })),
         };
@@ -36,7 +32,7 @@ module.exports = {
           res.status(200).json(doc);
         } else {
           res.status(404).json({
-            message: "Not Found petId",
+            message: "Not Found articleId",
           });
         }
       })
@@ -49,7 +45,7 @@ module.exports = {
     //     id: id
     // })
   },
-  post_pet: (req, res) => {
+  post_article: (req, res) => {
     // const pet = {
     //     petName: req.body.petName,
     //     price: req.body.price
@@ -59,23 +55,19 @@ module.exports = {
       originalname: file.originalname,
       path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
     }));
-    const pet = new Pet({
+    const article = new Article({
       _id: mongoose.Types.ObjectId(),
-      petName: req.body.petName,
-      price: req.body.price,
-      petImages: imageFiles,
+      title: req.body.title,
+      articleImages: req.body.articleImages,
       description: req.body.description,
-      quantity: req.body.quantity,
       postedById: req.body.postedById,
-      create_at: req.body.create_at,
+    //   create_at: req.body.create_at,
     });
-    pet
-    
+    article
       .save()
-      .then(response => response.populate('postedById', 'username email').execPopulate())
       .then((result) => {
         res.status(200).json({
-          message: "Handling Post request to /pets",
+          message: "Handling Post request to /article",
           createdPet: result,
         });
       })
@@ -91,7 +83,7 @@ module.exports = {
     Pet.remove({ _id: id })
       .then((result) => {
         res.status(200).json({
-          message: "pet deleted",
+          message: "article deleted",
           result: result,
         });
       })
@@ -106,7 +98,7 @@ module.exports = {
     Pet.remove()
       .then((result) => {
         res.status(200).json({
-          message: "pet deleted",
+          message: "article deleted",
           result: result,
         });
       })
@@ -117,23 +109,22 @@ module.exports = {
         })
       );
   },
-  update_posted_pet: (req, res) => {
+//   update_posted_pet: (req, res) => {
     
-      petId = req.params.petId;
-      const imageFiles = req.files.map((file) => ({
-        originalname: file.originalname,
-        path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
-      }));
-      // console.log(req.body)
-      const {petName, price, description, quantity} = req.body
-        Pet.findByIdAndUpdate({ _id: petId}, {petName, price, petImages: imageFiles, description, quantity}, {new: true})
-        .then(response => response.populate('postedById', 'username email').execPopulate())
-        .then((result) => {
-          res.status(200).json({
-            result: result,
-            message: "it works"
-          })
-        })
-        .catch((err) => res.json(err));
-    }
+//       petId = req.params.petId;
+//       const imageFiles = req.files.map((file) => ({
+//         originalname: file.originalname,
+//         path: `${process.env.REQUEST_URI}:${process.env.PORT}/${file.path}`,
+//       }));
+//       // console.log(req.body)
+//       const {petName, price, description, quantity} = req.body
+//         Pet.findByIdAndUpdate({ _id: petId}, {petName, price, petImages: imageFiles, description, quantity}, {new: true})
+//         .then((result) => {
+//           res.status(200).json({
+//             result: result,
+//             message: "it works"
+//           })
+//         })
+//         .catch((err) => res.json(err));
+//     }
 };
