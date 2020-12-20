@@ -12,7 +12,7 @@ const feedbackRoutes = require('./routes/feedback')
 const categoryRoutes = require('./routes/category')
 const articleRoutes = require('./routes/article')
 
-mongoose.connect('mongodb://localhost:27017/anapps', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: true}, (err) => {
+mongoose.connect(process.env.MONGODB_API, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: true}, (err) => {
     if(err){
         console.log(err)
     } else
