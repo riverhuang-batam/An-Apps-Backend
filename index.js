@@ -3,6 +3,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const morgan = require('morgan')
+const cors = require('cors');
 require('dotenv').config()
 
 const petsRoutes = require('./routes/pets')
@@ -12,7 +13,7 @@ const feedbackRoutes = require('./routes/feedback')
 const categoryRoutes = require('./routes/category')
 const articleRoutes = require('./routes/article')
 
-mongoose.connect(process.env.MONGODB_API, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: true}, (err) => {
+mongoose.connect('mongodb://localhost:27017/anapps', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: true}, (err) => {
     if(err){
         console.log(err)
     } else
@@ -22,7 +23,7 @@ app.use('/uploads', express.static('uploads'))
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 app.use(morgan('dev'))
-
+app.use(cors());
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', "Origin, X-Requested-With, Accept, Authorization")
