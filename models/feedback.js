@@ -6,6 +6,6 @@ const feedbackSchema  = mongoose.Schema({
     // images: {type: Array, required: true},
     description: {type: String, required: true},
     sendById:{type: String, required: true},
-    create_at: {type: Date, timestamps: true},
+    created_at: { type: Date, required: true, default: Date.now }
 })
 module.exports = mongoose.model('Feedback', feedbackSchema)

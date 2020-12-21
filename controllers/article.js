@@ -58,10 +58,9 @@ module.exports = {
     const article = new Article({
       _id: mongoose.Types.ObjectId(),
       title: req.body.title,
-      articleImages: req.body.articleImages,
+      articleImages: imageFiles,
       description: req.body.description,
       postedById: req.body.postedById,
-    //   create_at: req.body.create_at,
     });
     article
       .save()

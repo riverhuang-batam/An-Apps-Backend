@@ -6,6 +6,6 @@ const articleSchema  = mongoose.Schema({
     articleImages: {type: Array, required: true},
     description: {type: String, required: true},
     postedById:{type: String},
-    create_at: {type: Date, timestamps: true},
+    created_at: { type: Date, required: true, default: Date.now }
 })
 module.exports = mongoose.model('Article', articleSchema)

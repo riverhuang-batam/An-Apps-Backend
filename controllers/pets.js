@@ -67,7 +67,6 @@ module.exports = {
       description: req.body.description,
       quantity: req.body.quantity,
       postedById: req.body.postedById,
-      create_at: req.body.create_at,
     });
     pet
     
